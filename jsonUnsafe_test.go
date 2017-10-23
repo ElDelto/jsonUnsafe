@@ -25,13 +25,16 @@ var (
 	}
 )
 
-/*func TestMarshalJSON(t *testing.T) {
-	json, err := MarshalJSON(&ts)
-}*/
+func TestMarshal(t *testing.T) {
+	json, err := Marshal(&ts)
 
-func TestUnmarshalJSON(t *testing.T) {
+	testutil.CheckError(t, err)
+	testutil.ShouldBeEqual(t, "JSON", testJSON, json)
+}
+
+func TestUnmarshal(t *testing.T) {
 	tsLocal := testStruct{}
-	err := UnmarshalJSON(testJSON, &tsLocal)
+	err := Unmarshal(testJSON, &tsLocal)
 
 	if err != nil {
 		testutil.Error(t, err)
@@ -42,7 +45,7 @@ func TestUnmarshalJSON(t *testing.T) {
 	}
 
 	m := map[string]interface{}{}
-	err = UnmarshalJSON(testJSON, m)
+	err = Unmarshal(testJSON, m)
 
 	if err != nil {
 		testutil.Error(t, err)
