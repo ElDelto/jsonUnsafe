@@ -1,6 +1,7 @@
 package jsonUnsafe
 
 import (
+	"encoding/json"
 	"reflect"
 	"testing"
 
@@ -26,10 +27,18 @@ var (
 )
 
 func TestMarshal(t *testing.T) {
-	json, err := Marshal(&ts)
+	jsonData, err := Marshal(&ts)
 
 	testutil.CheckError(t, err)
-	testutil.ShouldBeEqual(t, "JSON", testJSON, json)
+
+	m1 := map[string]string{}
+	_ = json.Unmarshal(jsonData, &m1)
+
+	m2 := map[string]string{}
+	_ = json.Unmarshal(testJSON, &m2)
+
+	testutil.ShouldBeEqual(t, "JSON", m2["unexported"], m1["unexported"])
+	testutil.ShouldBeEqual(t, "JSON", m2["Exported"], m1["Exported"])
 }
 
 func TestUnmarshal(t *testing.T) {

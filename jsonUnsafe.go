@@ -1,3 +1,5 @@
+// jsonUnsafe uses the "unsafe" package from the standard library to
+// encode/decode unexported struct fields.
 package jsonUnsafe
 
 import (
@@ -8,19 +10,32 @@ import (
 	"unsafe"
 )
 
+// Marshal has the same signature as "encoding/json#Marshal". If the given
+// input value is not a struct then the result of "encoding/json#Marshal"
+// will be returnedl
 func Marshal(input interface{}) ([]byte, error) {
 	if !isStruct(input) {
 		return json.Marshal(&input)
 	}
 
-	m := map[string]interface{}{}
-	f := func() {
-
+	m := map[string]string{}
+	f := func(fieldKey string, fieldValue *reflect.Value) error {
+		m[fieldKey] = fieldValue.String()
+		return nil
 	}
 
-	return nil, nil
+	err := forEachStructField(input, f)
+	if err != nil {
+		return nil, err
+	}
+
+	output, err := json.Marshal(&m)
+	return output, err
 }
 
+// Unmarshal has the samge signature as "encoding/json#Unmarshal". if the given
+// target value is not a struct then the result of "encoding/json#Unmarshal"
+// will be returned.
 func Unmarshal(data []byte, target interface{}) error {
 	if !isStruct(target) {
 		return json.Unmarshal(data, &target)
